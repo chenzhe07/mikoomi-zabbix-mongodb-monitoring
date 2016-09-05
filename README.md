@@ -21,8 +21,11 @@ The MongoDB plugin uses the MongoDB PHP driver which needs to be installed on th
 
 * **php5-dev (or php5-devel)** = Files for PHP5 module development
 * **php5-pear** = PEAR - PHP Extension and Application Repository
+* **php5-pecl-mongo
 * **gcc** = GNU C Compiler
 * **make** = make utility
+* **zabbix-sender
+
 
 For the above use the right package manager for your distribution (aptitude, yum, etc.)
 
@@ -74,7 +77,7 @@ Follow these steps to start monitoring a MongoDB server
   * Add something like this (look out especially for the **ZABBIX_HOSTNAME** variable, which must meet the name of the node in the Zabbix server which we attached the template to in the previous steps) the following to the Zabbix user's crontab:
 ```
 ZABBIX_HOSTNAME=$(hostname -f)
-* * * * * /etc/zabbix/externalscripts/mikoomi-mongodb-plugin.sh -z $ZABBIX_HOSTNAME
+* * * * * /etc/zabbix/externalscripts/mikoomi-mongodb-plugin.sh -z $ZABBIX_HOSTNAME -h $NODE_HOST -u xxx -H $ZABBIX_SERVER
 ```
 
 **Note that in a sharded and/or replicated MongoDB environment, you need to monitor only ONE of the mongos process**. However that process needs to be aware of the entire Mongo environment (or cluster) - i.e. all the shards and all the replicas within each replicaset. 

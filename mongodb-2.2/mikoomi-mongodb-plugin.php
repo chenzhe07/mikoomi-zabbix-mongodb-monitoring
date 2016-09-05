@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 error_reporting(E_PARSE) ;
 
-$options = getopt("Dh:p:z:u:x:H:P:", array("ssl")) ;
+$options = getopt("Dh:p:z:u:x:H:P:s:", array("ssl")) ;
 $command_name = basename($argv[0]) ;
 $command_version = "0.4" ;
 
@@ -48,6 +48,7 @@ where
    -x    = Password for database authentication
    -H    = Zabbix server IP or hostname
    -P    = Zabbix server Port or hostname
+   -s    = mongodb replSet name string
    --ssl = Use SSL when connecting to MongoDB
 "  ;
 
@@ -67,12 +68,15 @@ $zabbix_server_port = ($options['P'] ? $options['P'] : '10051');
 
 $debug_mode = isset($options['D']) ;
 
+$replSet = $options['s'];
+
 $ssl = isset($options['ssl']) ;
 
 if ($ssl && !MONGO_SUPPORTS_SSL) {
   echo "WARNING: --ssl option is specified, but we will not use it, because the PHP Mongo extension does not support SSL!\n" ;
   $ssl = false ;
 }
+
 
 $data_lines = array() ;
 
@@ -131,8 +135,9 @@ if ($ssl) {
   $connect_string .= "/?ssl=true" ;
 }
 
-$mongo_connection = new Mongo("mongodb://$connect_string") ;
-
+$mongo_connection = empty($replSet) 
+                  ? new MongoClient("mongodb://$connect_string")
+                  : new MongoClient("mongodb://$connect_string", array('replicaSet' => "$replSet")) ;
 if (is_null($mongo_connection)) {
     write_to_log("Error in connection to mongoDB using connect string $connect_string") ;
     exit ;
